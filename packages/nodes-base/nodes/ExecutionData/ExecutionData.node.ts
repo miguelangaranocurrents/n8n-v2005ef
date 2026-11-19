@@ -7,7 +7,7 @@ import type {
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 type DataToSave = {
-	values: Array<{ key: string; value: string }>;
+	values: Array<{ key: string; value: string | number | boolean }>;
 };
 
 export class ExecutionData implements INodeType {
@@ -120,14 +120,14 @@ export class ExecutionData implements INodeType {
 
 					const values = dataToSave.reduce(
 						(acc, { key, value }) => {
-							const valueToSet = value ? value : nodeVersion >= 1.1 ? '' : value;
+							const valueToSet = value || value === 0 || value === false ? value : nodeVersion >= 1.1 ? '' : value;
 							acc[key] = valueToSet;
 							return acc;
 						},
-						{} as { [key: string]: string },
+						{} as { [key: string]: string | number | boolean },
 					);
 
-					this.customData.setAll(values);
+					this.customData.setAll(values as Record<string, string>);
 
 					returnData.push(items[i]);
 				} catch (error) {
